@@ -73,11 +73,11 @@ export default function Home() {
   }, [formData.phone]);
 
   // Добавление в корзину
-  const addToCart = (product) => {
+  const addToCart = (product: any) => {
     setCart([...cart, product]);
   };
 
-  const removeFromCart = (index) => {
+  const removeFromCart = (index: any) => {
     const newCart = [...cart];
     newCart.splice(index, 1);
     setCart(newCart);
