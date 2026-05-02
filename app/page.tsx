@@ -456,7 +456,7 @@ export default function Home() {
 
                   <div className="bg-emerald-50 p-5 rounded-2xl mb-5 border border-emerald-100">
                     <p className="text-sm text-emerald-900 font-medium italic">
-                      💳 Оплата при отриманні або на карту. Менеджер зв'яжеться
+                      💳 Оплата при отриманні або на карту. Менеджер зв&apos;яжеться
                       для підтвердження.
                     </p>
                   </div>
@@ -521,7 +521,7 @@ export default function Home() {
               Дякуємо!
             </h2>
             <p className="text-lg text-slate-600 mb-8">
-              Замовлення успішно отправлене менеджерам. Ми зв'яжемося з вами
+              Замовлення успішно отправлене менеджерам. Ми зв&apos;яжемося з вами
               найближчим часом для уточнення деталей.
             </p>
 
