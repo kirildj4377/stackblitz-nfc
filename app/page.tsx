@@ -188,7 +188,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors">
+    <main className="min-h-screen bg-slate-50 pb-20">
       {/* Подключаем CSS для галочки прямо здесь, чтобы не плодить файлы на StackBlitz */}
       <style>{`
         .success-checkmark {
@@ -363,7 +363,7 @@ export default function Home() {
                 </span>
                 <button
                   onClick={() => addToCart(item)}
-                  className="bg-blue-600 text-white px-7 py-3 rounded-xl font-bold hover:bg-blue-700 active:scale-95 transition border-slate-900 dark:border-slate-100 dark:text-slate-100 group-hover:bg-slate-900 dark:group-hover:bg-white dark:group-hover:text-slate-900"
+                  className="bg-blue-600 text-white px-7 py-3 rounded-xl font-bold hover:bg-blue-700 active:scale-95 transition"
                 >
                   В кошик
                 </button>
@@ -404,7 +404,7 @@ export default function Home() {
                         <span className="font-bold">{item.price} грн</span>
                         <button
                           onClick={() => removeFromCart(i)}
-                          className="text-red-400 hover:text-red-600 border-slate-900 dark:border-slate-100 dark:text-slate-100 group-hover:bg-slate-900 dark:group-hover:bg-white dark:group-hover:text-slate-900"
+                          className="text-red-400 hover:text-red-600"
                         >
                           ✕
                         </button>
@@ -498,7 +498,7 @@ export default function Home() {
 
                   <button
                     type="submit"
-                    className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black text-xl hover:bg-slate-800 transition transform active:scale-95 border-slate-900 dark:border-slate-100 dark:text-slate-100 group-hover:bg-slate-900 dark:group-hover:bg-white dark:group-hover:text-slate-900"
+                    className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black text-xl hover:bg-slate-800 transition transform active:scale-95"
                   >
                     Підтвердити замовлення
                   </button>
