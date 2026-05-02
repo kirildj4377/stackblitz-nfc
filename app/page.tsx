@@ -164,7 +164,7 @@ export default function Home() {
           clientFirstName: formData.name,
           clientPhone: formData.phone,
         },
-        async function (response) {
+        async function (response: any) {
           // --- УСПЕШНАЯ ОПЛАТА ---
           // Только теперь отправляем в Telegram
           await sendToTelegram(getMessageText('PAID'));
