@@ -1,7 +1,7 @@
 import { products } from '@/data/mockProducts';
 
 export const ProductList = () => {
-  return (
+  return ( <> 
     <section className="py-20 bg-slate-50">
       <div className="container mx-auto px-6">
         <h2 className="text-3xl font-bold mb-12 text-slate-900">Популярные решения</h2>
@@ -26,6 +26,6 @@ export const ProductList = () => {
           ))}
         </div>
       </div>
-    </section>
+    </section> </>
   );
 };
