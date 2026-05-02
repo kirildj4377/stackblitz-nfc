@@ -150,7 +150,7 @@ export default function Home() {
 
       wayforpay.run(
         {
-          merchantAccount: 'test_merch_nfc',
+          merchantAccount: 'stackblitz_nfc_vercel_app',
           merchantDomainName: window.location.hostname,
           authorizationType: 'SimpleSignature',
           merchantSignature: '',
