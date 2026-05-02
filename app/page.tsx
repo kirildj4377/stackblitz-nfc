@@ -102,7 +102,7 @@ export default function Home() {
     const orderId = `ORDER_${Date.now()}`;
 
     // Функция для сборки текста сообщения
-    const getMessageText = (status) => `
+    const getMessageText = (status: any) => `
   ${
     status === 'PAID'
       ? '✅ **ОПЛАЧЕНО КАРТОЮ**'
