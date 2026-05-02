@@ -423,7 +423,7 @@ export default function Home() {
                   </h3>
                   <input
                     required
-                    placeholder="Ваше ім'я та прізвище"
+                    placeholder="Ваше ім&apos;я та прізвище"
                     className="w-full p-4 bg-slate-50 rounded-xl ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 transition"
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
