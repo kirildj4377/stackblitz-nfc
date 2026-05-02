@@ -22,7 +22,7 @@ const SuccessAnimatedCheckmark = () => {
 };
 
 export default function Home() {
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState<any[]>([]);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false); // Новое состояние
   const [formData, setFormData] = useState({
