@@ -2,9 +2,9 @@ import { products } from '@/data/mockProducts';
 
 export const ProductList = () => {
   return (
-    <section className="py-20 bg-slate-50 dark:bg-slate-900 transition-colors">
-      <div className="container mx-auto px-6">
-        <h2 className="text-3xl font-bold mb-12 text-slate-900 text-slate-900 dark:text-white">Популярні рішення</h2>
+    <section className="py-20 bg-slate-50 dark:bg-[#0f172a] transition-colors">
+      <div className="container mx-auto px-6 bg-white dark:bg-slate-800/50 dark:backdrop-blur-sm p-8 rounded-3xl shadow-sm border border-transparent dark:border-slate-700 transition-all flex flex-col h-full">
+        <h2 className="text-3xl font-bold mb-12 text-slate-900 text-slate-900 dark:text-white text-slate-900 dark:text-white">Популярні рішення</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {products.map((product) => (
