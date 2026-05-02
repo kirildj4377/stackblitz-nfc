@@ -55,14 +55,7 @@ export default function Home() {
       image:
         'https://images.unsplash.com/photo-1625217527288-93919c99650a?w=300',
     },
-    {
-      id: 3,
-      title: 'Металлический брелок',
-      chip: 'NTAG215',
-      price: 180,
-      image:
-        'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=300',
-    },
+  
   ];
 
   useEffect(() => {
@@ -338,7 +331,7 @@ export default function Home() {
       </section>
 
       {/* Товары */}
-      <section className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
+      <section className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 px-4">
         {products.map((item) => (
           <div
             key={item.id}
