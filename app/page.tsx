@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Script from 'next/script'; // Нужно для загрузки виджета оплаты
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 declare global {
   interface Window {
@@ -537,6 +538,7 @@ export default function Home() {
         src="https://secure.wayforpay.com/server/pay-widget.js"
         strategy="lazyOnload"
       />
+      <ThemeToggle /> {/* Вот твоя кнопка */}
     </main>
   );
 }
