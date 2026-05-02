@@ -91,7 +91,7 @@ export default function Home() {
   const [paymentMethod, setPaymentMethod] = useState('cash'); // 'cash' или 'card'
 
   // 2. Обновленная функция отправки
-  const handleOrderProcess = async (e) => {
+  const handleOrderProcess = async (e: any) => {
     e.preventDefault();
 
     if (phoneError || !formData.phone) {
