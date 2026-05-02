@@ -2,6 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import Script from 'next/script'; // Нужно для загрузки виджета оплаты
 
+declare global {
+  interface Window {
+    Wayforpay: any;
+  }
+}
+
 // --- НАСТРОЙКИ ТЕЛЕГРАМА ---
 // Позже ты вставишь сюда свои данные
 const TELEGRAM_BOT_TOKEN = '8656506280:AAGWKGyN3DSk6mSNiJVW1Da0NGMlJW5Z_1Q';
