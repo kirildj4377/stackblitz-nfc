@@ -119,7 +119,7 @@ export default function Home() {
     `;
 
     // Функция отправки в Telegram
-    const sendToTelegram = async (text) => {
+    const sendToTelegram = async (text: any) => {
       await fetch(
         `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
         {
