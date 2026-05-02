@@ -15,7 +15,7 @@ export const ProductList = () => {
               <p className="text-slate-500 mb-4">{product.useCase}</p>
               <div className="flex items-center justify-between mt-auto">
                 <span className="text-sm font-mono bg-slate-100 px-3 py-1 rounded text-slate-600">
-                  {product.chip}
+                  {product.chip}</span>
                 </div>
                 <span className="text-xl font-bold">{product.price} ₽</span>
               </div>
