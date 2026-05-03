@@ -384,49 +384,44 @@ export default function Home() {
 
       {/* Правая часть: Описание */}
       <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center relative">
-        <button 
-          onClick={() => setSelectedProduct(null)}
-          className="absolute top-6 right-6 text-slate-400 hover:text-slate-900 dark:hover:text-white text-3xl"
-        >
-          &times;
-        </button>
+        <button onClick={() => setSelectedProduct(null)} className="absolute top-6 right-6 ...">&times;</button>
 
         <span className="inline-block px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-bold mb-4 w-fit">
-          Чип {selectedProduct.chip}
+          Чіп {selectedProduct.chip}
         </span>
-        
-        <h2 className="text-4xl font-black mb-4 dark:text-white">
-          {selectedProduct.title}
-        </h2>
-        
-        <p className="text-slate-500 dark:text-slate-400 text-lg mb-8 leading-relaxed">
-          Професійне рішення для ваших задач. Використовуйте цей {selectedProduct.title} для миттєвої передачі контактів, запуску команд або автоматизації розумного будинку. Працює з усіма сучасними смартфонами.
+  
+        <h2 className="text-4xl font-black mb-4 dark:text-white">{selectedProduct.title}</h2>
+  
+        {/* НОВЫЙ ТЕКСТ */}
+        <p className="text-slate-500 dark:text-slate-400 text-base mb-6 leading-relaxed">
+         Це не просто NFC-мітка, а ваш цифровий інструмент. 
+         Ми пропонуємо <b>індивідуальне виготовлення</b>: додамо ваш логотип та заллємо виріб <b>міцною епоксидною смолою</b>. 
+         Це зробить чіп стійким до подряпин, ударів та води.
         </p>
-
-        <div className="flex items-center justify-between mt-auto pt-8 border-t dark:border-slate-800">
+        <div className="flex items-center justify-between mt-auto pt-6 border-t dark:border-slate-800">
           <div>
             <p className="text-sm text-slate-400 uppercase tracking-widest font-bold">Ціна</p>
             <span className="text-4xl font-black dark:text-white">{selectedProduct.price} грн</span>
           </div>
 
           {/* Блок кастомизации */}
-<div className="grid grid-cols-1 gap-4 mb-8">
-  <div className="flex items-start gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700">
-    <span className="text-2xl">🎨</span>
-    <div>
-      <h4 className="font-bold text-sm dark:text-white text-slate-900">Повний кастом</h4>
-      <p className="text-xs text-slate-500 dark:text-slate-400">Нанесемо ваш логотип або унікальний дизайн</p>
-    </div>
-  </div>
+          <div className="grid grid-cols-1 gap-3 mb-8">
+            <div className="flex items-start gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700">
+              <span className="text-2xl">🎨</span>
+                <div>
+                  <h4 className="font-bold text-sm dark:text-white text-slate-900">Повний кастом</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Нанесемо ваш логотип або унікальний дизайн</p>
+                </div>
+            </div>
   
-  <div className="flex items-start gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700">
-    <span className="text-2xl">💧</span>
-    <div>
-      <h4 className="font-bold text-sm dark:text-white text-slate-900">Епоксидне покриття</h4>
-      <p className="text-xs text-slate-500 dark:text-slate-400">Об'ємний 3D-ефект та повний вологозахист (IP68)</p>
-    </div>
-  </div>
-</div>
+            <div className="flex items-start gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700">
+              <span className="text-2xl">💧</span>
+                <div>
+                  <h4 className="font-bold text-sm dark:text-white text-slate-900">Епоксидне покриття</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Об'ємний 3D-ефект та повний вологозахист (IP68)</p>
+                </div>
+            </div>
+          </div>
           
           <button
             onClick={() => {
