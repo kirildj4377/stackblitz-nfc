@@ -33,6 +33,7 @@ export default function Home() {
     name: '',
     phone: '',
     address: '',
+    comment: '',
   });
   const [phoneError, setPhoneError] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('cash');
@@ -95,6 +96,7 @@ export default function Home() {
   👤 Клієнт: ${formData.name}
   📞 Тел: ${formData.phone}
   📍 Доставка: ${formData.address}
+  💬 Коментар: ${formData.comment || '—'}
   ---
   📦 Товари:
   ${cart.map((item) => `- ${item.title} (${item.price} грн)`).join('\n')}
@@ -336,6 +338,20 @@ export default function Home() {
                     className="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 transition"
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                   />
+
+                  {/* Поле комментария */}
+<div className="space-y-1">
+  <label className="text-sm font-bold text-slate-600 dark:text-slate-400 ml-1">
+    Коментар до замовлення
+  </label>
+  <textarea
+    placeholder="Наприклад: колір логотипу, особливості кастомізації..."
+    className="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 transition min-h-[100px]"
+    onChange={(e) =>
+      setFormData({ ...formData, comment: e.target.value })
+    }
+  />
+</div>
 
                   <div className="bg-emerald-50 dark:bg-emerald-900/20 p-5 rounded-2xl mb-5 border border-emerald-100 dark:border-emerald-900/30">
                     <p className="text-sm text-emerald-900 dark:text-emerald-400 font-medium italic">
