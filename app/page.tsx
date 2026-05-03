@@ -169,6 +169,17 @@ export default function Home() {
         @keyframes icon-line-long { 0% { width: 0; right: 46px; top: 54px; } 65% { width: 0; right: 46px; top: 54px; } 84% { width: 55px; right: 0px; top: 35px; } 100% { width: 47px; right: 8px; top: 38px; } }
         @keyframes fade-in-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in-up { animation: fade-in-up 0.4s ease-out; }
+        .tooltip-trigger:hover .tooltip-content {
+          opacity: 1;
+          visibility: visible;
+          transform: translateY(0);
+        }
+        .tooltip-content {
+          opacity: 0;
+          visibility: hidden;
+          transform: translateY(10px);
+          transition: all 0.3s ease;
+        }
       `}</style>
 
       {/* Шапка */}
@@ -404,24 +415,44 @@ export default function Home() {
             <span className="text-4xl font-black dark:text-white">{selectedProduct.price} грн</span>
           </div>
 
-          {/* Блок кастомизации */}
-          <div className="grid grid-cols-1 gap-3 mb-8">
-            <div className="flex items-start gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700">
-              <span className="text-2xl">🎨</span>
-                <div>
-                  <h4 className="font-bold text-sm dark:text-white text-slate-900">Повний кастом</h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Нанесемо ваш логотип або унікальний дизайн</p>
-                </div>
-            </div>
-  
-            <div className="flex items-start gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700">
-              <span className="text-2xl">💧</span>
-                <div>
-                  <h4 className="font-bold text-sm dark:text-white text-slate-900">Епоксидне покриття</h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Об'ємний 3D-ефект та повний вологозахист (IP68)</p>
-                </div>
-            </div>
+          {/* Блок кастомизации с подсказкой */}
+<div className="mb-8">
+  <div className="flex items-center gap-2 group tooltip-trigger relative">
+    <h3 className="text-lg font-bold dark:text-white text-slate-900">
+      Доступна кастомізація
+    </h3>
+    
+    {/* Иконка вопроса */}
+    <div className="cursor-help w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center text-xs font-bold text-slate-400 group-hover:border-blue-500 group-hover:text-blue-500 transition-colors">
+      ?
+    </div>
+
+    {/* Само всплывающее окошко (Tooltip) */}
+    <div className="tooltip-content absolute bottom-full left-0 mb-3 w-72 p-5 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 z-[130]">
+      <div className="space-y-4">
+        <div className="flex gap-3">
+          <span className="text-xl">🎨</span>
+          <div>
+            <p className="font-bold text-sm dark:text-white">Власний дизайн</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Друк вашого логотипу або будь-якого зображення на поверхні чіпа.</p>
           </div>
+        </div>
+        <div className="flex gap-3">
+          <span className="text-xl">🛡️</span>
+          <div>
+            <p className="font-bold text-sm dark:text-white">Епоксидна смола</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Створення об'ємного захисного шару. Чіп стає приємним на дотик та повністю водонепроникним.</p>
+          </div>
+        </div>
+      </div>
+      {/* Маленький хвостик внизу окошка */}
+      <div className="absolute -bottom-2 left-6 w-4 h-4 bg-white dark:bg-slate-800 border-r border-b border-slate-100 dark:border-slate-700 rotate-45"></div>
+    </div>
+  </div>
+  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+    Зробіть ваш NFC-аксесуар унікальним
+  </p>
+</div>
           
           <button
             onClick={() => {
