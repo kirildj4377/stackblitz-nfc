@@ -37,6 +37,7 @@ export default function Home() {
   const [phoneError, setPhoneError] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
 
   const products = [
     {
@@ -465,6 +466,73 @@ export default function Home() {
           </button>
         </div>
       </div>
+    </div>
+  </div>
+)}
+<button 
+  onClick={() => setIsInfoModalOpen(true)}
+  className="text-sm text-slate-500 hover:text-blue-600 transition"
+>
+  Доставка та оплата
+</button>
+
+{/* --- МОДАЛЬНОЕ ОКНО ИНФОРМАЦИИ --- */}
+{isInfoModalOpen && (
+  <div className="fixed inset-0 z-[150] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setIsInfoModalOpen(false)}>
+    <div 
+      className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[2.5rem] shadow-2xl p-8 md:p-12 animate-fade-in-up relative"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <button 
+        onClick={() => setIsInfoModalOpen(false)}
+        className="absolute top-6 right-6 text-slate-400 hover:text-slate-900 dark:hover:text-white text-3xl"
+      >
+        &times;
+      </button>
+
+      <h2 className="text-3xl font-black mb-8 dark:text-white">Інформація</h2>
+
+      <div className="space-y-8">
+        {/* Доставка */}
+        <div className="flex gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center shrink-0 text-2xl">
+            🚚
+          </div>
+          <div>
+            <h3 className="font-bold text-lg dark:text-white">Доставка</h3>
+            <p className="text-slate-500 dark:text-slate-400">Відправляємо Новою Поштою по всій Україні. Відправка готових чіпів — у день замовлення або наступного ранку.</p>
+          </div>
+        </div>
+
+        {/* Оплата */}
+        <div className="flex gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center shrink-0 text-2xl">
+            💳
+          </div>
+          <div>
+            <h3 className="font-bold text-lg dark:text-white">Оплата</h3>
+            <p className="text-slate-500 dark:text-slate-400">Онлайн на сайті через WayForPay або при отриманні у відділенні (післяплата).</p>
+          </div>
+        </div>
+
+        {/* Сроки кастома */}
+        <div className="flex gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center shrink-0 text-2xl">
+            ⏳
+          </div>
+          <div>
+            <h3 className="font-bold text-lg dark:text-white">Кастомні замовлення</h3>
+            <p className="text-slate-500 dark:text-slate-400">Виготовлення чіпів з вашим дизайном та епоксидною смолою займає <b>2-4 робочих дні</b>. Це час, необхідний для якісного застигання покриття.</p>
+          </div>
+        </div>
+      </div>
+
+      <button 
+        onClick={() => setIsInfoModalOpen(false)}
+        className="w-full mt-10 bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-4 rounded-2xl font-bold hover:opacity-90 transition"
+      >
+        Зрозуміло
+      </button>
     </div>
   </div>
 )}
