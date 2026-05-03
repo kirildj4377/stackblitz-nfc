@@ -408,6 +408,25 @@ export default function Home() {
             <p className="text-sm text-slate-400 uppercase tracking-widest font-bold">Ціна</p>
             <span className="text-4xl font-black dark:text-white">{selectedProduct.price} грн</span>
           </div>
+
+          {/* Блок кастомизации */}
+<div className="grid grid-cols-1 gap-4 mb-8">
+  <div className="flex items-start gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700">
+    <span className="text-2xl">🎨</span>
+    <div>
+      <h4 className="font-bold text-sm dark:text-white text-slate-900">Повний кастом</h4>
+      <p className="text-xs text-slate-500 dark:text-slate-400">Нанесемо ваш логотип або унікальний дизайн</p>
+    </div>
+  </div>
+  
+  <div className="flex items-start gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700">
+    <span className="text-2xl">💧</span>
+    <div>
+      <h4 className="font-bold text-sm dark:text-white text-slate-900">Епоксидне покриття</h4>
+      <p className="text-xs text-slate-500 dark:text-slate-400">Об'ємний 3D-ефект та повний вологозахист (IP68)</p>
+    </div>
+  </div>
+</div>
           
           <button
             onClick={() => {
