@@ -9,8 +9,6 @@ declare global {
   }
 }
 
-const [selectedProduct, setSelectedProduct] = useState<any>(null);
-
 const TELEGRAM_BOT_TOKEN = '8656506280:AAGWKGyN3DSk6mSNiJVW1Da0NGMlJW5Z_1Q';
 const TELEGRAM_CHAT_ID = '327225760';
 
@@ -38,6 +36,7 @@ export default function Home() {
   });
   const [phoneError, setPhoneError] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('cash');
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
   const products = [
     {
