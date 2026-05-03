@@ -190,17 +190,29 @@ export default function Home() {
             NFC.STORE{' '}
             <span className="text-xs font-medium text-slate-400">UA</span>
           </h1>
-          <button
-            onClick={() => setIsOrderModalOpen(true)}
-            className="relative bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-5 py-3 rounded-2xl flex items-center gap-2 hover:scale-105 transition"
-          >
-            🛒 Кошик
-            {cart.length > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900 animate-bounce">
-                {cart.length}
-              </span>
-            )}
-          </button>
+          <div className="flex items-center gap-3">
+  {/* Новая кнопка Доставка та оплата */}
+  <button
+    onClick={() => setIsInfoModalOpen(true)}
+    className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+  >
+    <span>📦</span>
+    <span className="text-sm">Доставка</span>
+  </button>
+
+  {/* Твоя кнопка корзины */}
+  <button
+    onClick={() => setIsOrderModalOpen(true)}
+    className="relative bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-5 py-3 rounded-2xl flex items-center gap-2 hover:scale-105 transition"
+  >
+    🛒 Кошик
+    {cart.length > 0 && (
+      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900 animate-bounce">
+        {cart.length}
+      </span>
+    )}
+  </button>
+</div>
         </div>
       </header>
 
@@ -469,12 +481,7 @@ export default function Home() {
     </div>
   </div>
 )}
-<button 
-  onClick={() => setIsInfoModalOpen(true)}
-  className="text-sm text-slate-500 hover:text-blue-600 transition"
->
-  Доставка та оплата
-</button>
+
 
 {/* --- МОДАЛЬНОЕ ОКНО ИНФОРМАЦИИ --- */}
 {isInfoModalOpen && (
