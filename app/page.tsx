@@ -9,6 +9,8 @@ declare global {
   }
 }
 
+const [selectedProduct, setSelectedProduct] = useState<any>(null);
+
 const TELEGRAM_BOT_TOKEN = '8656506280:AAGWKGyN3DSk6mSNiJVW1Da0NGMlJW5Z_1Q';
 const TELEGRAM_CHAT_ID = '327225760';
 
@@ -207,6 +209,7 @@ export default function Home() {
         {products.map((item) => (
           <div
             key={item.id}
+            onClick={() => setSelectedProduct(item)} // Открываем предпросмотр
             className="bg-white dark:bg-slate-900 rounded-[2rem] overflow-hidden shadow-xl border border-slate-100 dark:border-slate-800 hover:shadow-2xl transition group"
           >
             <div className="h-56 bg-slate-200 dark:bg-slate-800">
@@ -234,7 +237,10 @@ export default function Home() {
                   </span>
                 </span>
                 <button
-                  onClick={() => addToCart(item)}
+                
+                  onClick={() => {
+                    e.stopPropagation();
+                     addToCart(item)}}
                   className="bg-blue-600 text-white px-7 py-3 rounded-xl font-bold hover:bg-blue-700 active:scale-95 transition"
                 >
                   В кошик
@@ -362,6 +368,62 @@ export default function Home() {
 
       <Script src="https://secure.wayforpay.com/server/pay-widget.js" strategy="lazyOnload" />
       <ThemeToggle />
+      {selectedProduct && (
+  <div className="fixed inset-0 z-[120] bg-black/80 backdrop-blur-md flex items-center justify-center p-4" onClick={() => setSelectedProduct(null)}>
+    <div 
+      className="bg-white dark:bg-slate-900 w-full max-w-4xl rounded-[3rem] overflow-hidden shadow-2xl animate-fade-in-up flex flex-col md:flex-row"
+      onClick={(e) => e.stopPropagation()} // Чтобы окно не закрывалось при клике внутри
+    >
+      {/* Левая часть: Изображение */}
+      <div className="md:w-1/2 h-64 md:h-auto bg-slate-100 dark:bg-slate-800">
+        <img 
+          src={selectedProduct.image} 
+          alt={selectedProduct.title} 
+          className="w-full h-full object-cover"
+        />
+      </div>
+
+      {/* Правая часть: Описание */}
+      <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center relative">
+        <button 
+          onClick={() => setSelectedProduct(null)}
+          className="absolute top-6 right-6 text-slate-400 hover:text-slate-900 dark:hover:text-white text-3xl"
+        >
+          &times;
+        </button>
+
+        <span className="inline-block px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-bold mb-4 w-fit">
+          Чип {selectedProduct.chip}
+        </span>
+        
+        <h2 className="text-4xl font-black mb-4 dark:text-white">
+          {selectedProduct.title}
+        </h2>
+        
+        <p className="text-slate-500 dark:text-slate-400 text-lg mb-8 leading-relaxed">
+          Професійне рішення для ваших задач. Використовуйте цей {selectedProduct.title} для миттєвої передачі контактів, запуску команд або автоматизації розумного будинку. Працює з усіма сучасними смартфонами.
+        </p>
+
+        <div className="flex items-center justify-between mt-auto pt-8 border-t dark:border-slate-800">
+          <div>
+            <p className="text-sm text-slate-400 uppercase tracking-widest font-bold">Ціна</p>
+            <span className="text-4xl font-black dark:text-white">{selectedProduct.price} грн</span>
+          </div>
+          
+          <button
+            onClick={() => {
+              addToCart(selectedProduct);
+              setSelectedProduct(null);
+            }}
+            className="bg-blue-600 text-white px-10 py-4 rounded-2xl font-bold hover:bg-blue-700 transition transform active:scale-95 shadow-lg shadow-blue-500/30"
+          >
+            Додати в кошик
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
     </main>
   );
 }
