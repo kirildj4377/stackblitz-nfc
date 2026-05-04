@@ -62,7 +62,8 @@ useEffect(() => {
         { chip: 'NTAG213', price: 85 },
         { chip: 'NTAG216', price: 160 },
         { chip: 'NTAG424 DNA', price: 210 },
-      ]
+      ],
+      description: 'Для візиток, посилань та дому.',
     },
     {
       id: 2,
@@ -70,6 +71,11 @@ useEffect(() => {
       chip: 'NTAG216',
       price: 250,
       image: 'https://images.unsplash.com/photo-1625217527288-93919c99650a?w=300',
+      options: [
+      { chip: 'NTAG216', price: 250 },
+      { chip: 'NTAG424 DNA', price: 320 },
+    ],
+    description: 'Для бізнес-візиток та доступу.',
     },
   ];
 
