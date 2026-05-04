@@ -568,67 +568,67 @@ export default function Home() {
     </div>
   </div>
 )}
-{/* --- МОДАЛЬНОЕ ОКНО ВАРИАНТОВ КАСТОМИЗАЦИИ --- */}
+{/* --- МОДАЛЬНОЕ ОКНО ВАРИАНТОВ КАСТОМИЗАЦИИ (КОМПАКТНОЕ) --- */}
 {isCustomModalOpen && (
   <div className="fixed inset-0 z-[160] bg-black/70 backdrop-blur-md flex items-center justify-center p-4" onClick={() => setIsCustomModalOpen(false)}>
     <div 
-      className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[2.5rem] shadow-2xl p-8 md:p-10 animate-fade-in-up relative overflow-hidden"
+      className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-[2rem] shadow-2xl p-6 md:p-8 animate-fade-in-up relative overflow-hidden"
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Декоративный градиент на фоне */}
-      <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl"></div>
+      {/* Декоративный эффект поменьше */}
+      <div className="absolute -top-12 -right-12 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl"></div>
 
       <button 
         onClick={() => setIsCustomModalOpen(false)}
-        className="absolute top-6 right-6 text-slate-400 hover:text-slate-900 dark:hover:text-white text-3xl z-10"
+        className="absolute top-4 right-5 text-slate-400 hover:text-slate-900 dark:hover:text-white text-2xl z-10"
       >
         &times;
       </button>
 
-      <h2 className="text-3xl font-black mb-2 dark:text-white">Що ми можемо зробити?</h2>
-      <p className="text-slate-500 dark:text-slate-400 mb-8 text-lg">Ваш чип — ваші правила. Ось кілька популярних ідей:</p>
+      <h2 className="text-2xl font-black mb-1 dark:text-white">Що ми можемо?</h2>
+      <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Варіанти дизайну вашого чіпа:</p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {/* Соцсети */}
-        <div className="p-5 rounded-[1.5rem] bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/10 dark:to-pink-900/10 border border-purple-100 dark:border-purple-800">
-          <div className="text-2xl mb-3">📱</div>
-          <h3 className="font-bold mb-1 dark:text-white">Соцмережі</h3>
-          <p className="text-sm text-slate-600 dark:text-slate-400">Логотипи Instagram, TikTok, Facebook або ваш QR-код для швидкої підписки.</p>
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/10 dark:to-pink-900/10 border border-purple-100 dark:border-purple-800">
+          <div className="text-xl mb-2">📱</div>
+          <h3 className="font-bold text-sm mb-1 dark:text-white">Соцмережі</h3>
+          <p className="text-[11px] leading-tight text-slate-600 dark:text-slate-400">Instagram, TikTok або персональний QR-код.</p>
         </div>
 
         {/* Авто */}
-        <div className="p-5 rounded-[1.5rem] bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-700">
-          <div className="text-2xl mb-3">🚗</div>
-          <h3 className="font-bold mb-1 dark:text-white">Автомобільні бренди</h3>
-          <p className="text-sm text-slate-600 dark:text-slate-400">Логотип вашої машини (BMW, Audi, Tesla тощо). Ідеально виглядає на ключах.</p>
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-700">
+          <div className="text-xl mb-2">🚗</div>
+          <h3 className="font-bold text-sm mb-1 dark:text-white">Авто бренди</h3>
+          <p className="text-[11px] leading-tight text-slate-600 dark:text-slate-400">Лого вашої машини (BMW, Audi, Tesla тощо).</p>
         </div>
 
         {/* Бизнес */}
-        <div className="p-5 rounded-[1.5rem] bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 border border-blue-100 dark:border-blue-800">
-          <div className="text-2xl mb-3">💼</div>
-          <h3 className="font-bold mb-1 dark:text-white">Бізнес-лого</h3>
-          <p className="text-sm text-slate-600 dark:text-slate-400">Фірмовий стиль вашої компанії для створення розумних візиток співробітникам.</p>
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 border border-blue-100 dark:border-blue-800">
+          <div className="text-xl mb-2">💼</div>
+          <h3 className="font-bold text-sm mb-1 dark:text-white">Бізнес-лого</h3>
+          <p className="text-[11px] leading-tight text-slate-600 dark:text-slate-400">Стильні візитки для вашої компанії.</p>
         </div>
 
         {/* Эпоксидка */}
-        <div className="p-5 rounded-[1.5rem] bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/10 dark:to-teal-900/10 border border-emerald-100 dark:border-emerald-800">
-          <div className="text-2xl mb-3">💎</div>
-          <h3 className="font-bold mb-1 dark:text-white">3D Ефект</h3>
-          <p className="text-sm text-slate-600 dark:text-slate-400">Заллємо будь-який принт епоксидною смолою для об'єму та захисту від води.</p>
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/10 dark:to-teal-900/10 border border-emerald-100 dark:border-emerald-800">
+          <div className="text-xl mb-2">💎</div>
+          <h3 className="font-bold text-sm mb-1 dark:text-white">3D Ефект</h3>
+          <p className="text-[11px] leading-tight text-slate-600 dark:text-slate-400">Захисний шар епоксидної смоли та об'єм.</p>
         </div>
       </div>
 
-      <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-800 text-center">
-        <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
-          Просто напишіть свої побажання у коментарі до замовлення!
+      <div className="mt-6 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800 text-center">
+        <p className="text-[12px] text-blue-700 dark:text-blue-300 font-medium">
+          Пишіть побажання у коментарі до замовлення!
         </p>
       </div>
 
       <button 
         onClick={() => setIsCustomModalOpen(false)}
-        className="w-full mt-6 bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-500/20"
+        className="w-full mt-4 bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition"
       >
-        Круто, зрозуміло!
+        Зрозуміло
       </button>
     </div>
   </div>
