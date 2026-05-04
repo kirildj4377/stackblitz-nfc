@@ -239,51 +239,60 @@ export default function Home() {
       </section>
 
       {/* Товары */}
-      <section className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 px-4">
-        {products.map((item) => (
-          <div
-            key={item.id}
-            onClick={() => setSelectedProduct(item)} // Открываем предпросмотр
-            className="bg-white dark:bg-slate-900 rounded-[2rem] overflow-hidden shadow-xl border border-slate-100 dark:border-slate-800 hover:shadow-2xl transition group"
-          >
-            <div className="h-56 bg-slate-200 dark:bg-slate-800">
-              <img
-                src={item.image}
-                alt={item.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-              />
-            </div>
-            <div className="p-7">
-              <div className="flex justify-between items-start mb-1">
-                <h3 className="text-xl font-bold dark:text-white">{item.title}</h3>
-                <span className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-slate-500 dark:text-slate-400">
-                  {item.chip}
-                </span>
-              </div>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
-                Для візиток, посилань та дому.
-              </p>
-              <div className="flex justify-between items-center border-t dark:border-slate-800 pt-5">
-                <span className="text-3xl font-black dark:text-white">
-                  {item.price}{' '}
-                  <span className="text-base font-medium text-slate-400">
-                    грн
-                  </span>
-                </span>
-                <button
-                
-                  onClick={() => {
-                    e.stopPropagation();
-                    setSelectedProduct(item);}}
-                  className="bg-blue-600 text-white px-7 py-3 rounded-xl font-bold hover:bg-blue-700 active:scale-95 transition"
-                >
-                  Детальніше
-                </button>
-              </div>
-            </div>
+      {/* Товары — Сетка стала 3 колонки на больших экранах */}
+<section className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
+  {products.map((item) => (
+    <div
+      key={item.id}
+      onClick={() => setSelectedProduct(item)}
+      className="cursor-pointer bg-white dark:bg-slate-900 rounded-[1.5rem] overflow-hidden shadow-lg border border-slate-100 dark:border-slate-800 hover:shadow-2xl transition-all duration-300 group flex flex-col"
+    >
+      {/* Высота картинки уменьшена с h-56 до h-44 */}
+      <div className="h-44 bg-slate-200 dark:bg-slate-800 relative overflow-hidden">
+        <img
+          src={item.image}
+          alt={item.title}
+          className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+        />
+        {/* Маленький бейдж чипа прямо на фото */}
+        <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-md text-[10px] text-white px-2 py-1 rounded-lg font-mono">
+          {item.chip}
+        </div>
+      </div>
+
+      {/* Отступы внутри уменьшены с p-7 до p-5 */}
+      <div className="p-5 flex flex-col flex-grow">
+        <h3 className="text-lg font-bold dark:text-white mb-1 leading-tight">
+          {item.title}
+        </h3>
+        <p className="text-slate-500 dark:text-slate-400 text-xs mb-4 line-clamp-1">
+          Для візиток, посилань та дому.
+        </p>
+        
+        <div className="flex justify-between items-center mt-auto pt-4 border-t dark:border-slate-800">
+          <div className="flex flex-col">
+            <span className="text-2xl font-black dark:text-white leading-none">
+              {item.price}
+            </span>
+            <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
+              грн
+            </span>
           </div>
-        ))}
-      </section>
+          
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedProduct(item);
+            }}
+            className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-2.5 rounded-xl font-bold transition-all active:scale-95 shadow-md shadow-blue-500/20"
+          >
+            Детальніше
+          </button>
+        </div>
+      </div>
+    </div>
+  ))}
+</section>
 
       {/* МОДАЛЬНОЕ ОКНО КОРЗИНЫ */}
       {isOrderModalOpen && (
