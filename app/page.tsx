@@ -268,7 +268,7 @@ export default function Home() {
                      addToCart(item)}}
                   className="bg-blue-600 text-white px-7 py-3 rounded-xl font-bold hover:bg-blue-700 active:scale-95 transition"
                 >
-                  В кошик
+                  Детальніше
                 </button>
               </div>
             </div>
