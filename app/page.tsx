@@ -265,9 +265,10 @@ export default function Home() {
                 
                   onClick={() => {
                     e.stopPropagation();
-                     addToCart(item)}}
+                    setSelectedProduct(item);}}
                   className="bg-blue-600 text-white px-7 py-3 rounded-xl font-bold hover:bg-blue-700 active:scale-95 transition"
                 >
+                  <span>👁️</span>
                   Детальніше
                 </button>
               </div>
