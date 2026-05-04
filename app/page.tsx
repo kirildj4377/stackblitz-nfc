@@ -40,14 +40,29 @@ export default function Home() {
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
+  const [selectedOption, setSelectedOption] = useState<any>(null);
+
+// Сбрасываем выбор при открытии нового товара
+useEffect(() => {
+  if (selectedProduct) {
+    setSelectedOption(selectedProduct.options[0]);
+  }
+}, [selectedProduct]);
 
   const products = [
     {
       id: 1,
       title: 'NFC Наклейка',
-      chip: 'NTAG213',
-      price: 85,
+      // Основная цена для отображения в каталоге
+    price: 85, 
+    // Значение по умолчанию для бейджа на главной
+    chip: 'NTAG213',
       image: 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?w=300',
+      options: [
+        { chip: 'NTAG213', price: 85 },
+        { chip: 'NTAG216', price: 160 },
+        { chip: 'NTAG424 DNA', price: 210 },
+      ]
     },
     {
       id: 2,
@@ -428,11 +443,11 @@ export default function Home() {
       {selectedProduct && (
   <div className="fixed inset-0 z-[120] bg-black/80 backdrop-blur-md flex items-center justify-center p-4" onClick={() => setSelectedProduct(null)}>
     <div 
-      className="bg-white dark:bg-slate-900 w-full max-w-4xl rounded-[3rem] overflow-hidden shadow-2xl animate-fade-in-up flex flex-col md:flex-row"
-      onClick={(e) => e.stopPropagation()} // Чтобы окно не закрывалось при клике внутри
+      className="bg-white dark:bg-[#0f172a] w-full max-w-4xl rounded-[2.5rem] overflow-hidden shadow-2xl animate-fade-in-up flex flex-col md:flex-row min-h-[500px]"
+      onClick={(e) => e.stopPropagation()}
     >
-      {/* Левая часть: Изображение */}
-      <div className="md:w-1/2 h-64 md:h-auto bg-slate-100 dark:bg-slate-800">
+      {/* Левая часть: Изображение (md:w-1/2 фиксирует половину ширины) */}
+      <div className="w-full md:w-1/2 h-64 md:h-auto relative">
         <img 
           src={selectedProduct.image} 
           alt={selectedProduct.title} 
@@ -440,76 +455,79 @@ export default function Home() {
         />
       </div>
 
-      {/* Правая часть: Описание */}
-      <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center relative">
-        <button onClick={() => setSelectedProduct(null)} className="absolute top-6 right-6 ...">&times;</button>
-
-        <span className="inline-block px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-bold mb-4 w-fit">
-          Чіп {selectedProduct.chip}
-        </span>
-  
-        <h2 className="text-4xl font-black mb-4 dark:text-white">{selectedProduct.title}</h2>
-  
-        {/* НОВЫЙ ТЕКСТ */}
-        <p className="text-slate-500 dark:text-slate-400 text-base mb-6 leading-relaxed">
-         Це не просто NFC-мітка, а ваш цифровий інструмент. 
-         Ми пропонуємо <b>індивідуальне виготовлення</b>: додамо ваш логотип та заллємо виріб <b>міцною епоксидною смолою</b>. 
-         Це зробить чіп стійким до подряпин, ударів та води.
-        </p>
-        <div className="flex items-center justify-between mt-auto pt-6 border-t dark:border-slate-800">
-          <div>
-            <p className="text-sm text-slate-400 uppercase tracking-widest font-bold">Ціна</p>
-            <span className="text-4xl font-black dark:text-white">{selectedProduct.price} грн</span>
-          </div>
-
-          {/* Блок кастомизации с подсказкой */}
-<div className="mb-8">
-  <div className="flex items-center gap-2 group tooltip-trigger relative">
-    <h3 className="text-lg font-bold dark:text-white text-slate-900">
-      Доступна кастомізація
-    </h3>
-    
-    {/* Иконка вопроса */}
-    <div className="cursor-help w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center text-xs font-bold text-slate-400 group-hover:border-blue-500 group-hover:text-blue-500 transition-colors">
-      ?
-    </div>
-
-    {/* Само всплывающее окошко (Tooltip) */}
-    <div className="tooltip-content absolute bottom-full left-0 mb-3 w-72 p-5 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 z-[130]">
-      <div className="space-y-4">
-        <div className="flex gap-3">
-          <span className="text-xl">🎨</span>
-          <div>
-            <p className="font-bold text-sm dark:text-white">Власний дизайн</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Друк вашого логотипу або будь-якого зображення на поверхні чіпа.</p>
-          </div>
-        </div>
-        <div className="flex gap-3">
-          <span className="text-xl">🛡️</span>
-          <div>
-            <p className="font-bold text-sm dark:text-white">Епоксидна смола</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Створення об'ємного захисного шару. Чіп стає приємним на дотик та повністю водонепроникним.</p>
-          </div>
-        </div>
-      </div>
-      {/* Маленький хвостик внизу окошка */}
-      <div className="absolute -bottom-2 left-6 w-4 h-4 bg-white dark:bg-slate-800 border-r border-b border-slate-100 dark:border-slate-700 rotate-45"></div>
-    </div>
-  </div>
-  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-    Зробіть ваш NFC-аксесуар унікальним
-  </p>
-</div>
-          
-          <button
-            onClick={() => {
-              addToCart(selectedProduct);
-              setSelectedProduct(null);
-            }}
-            className="bg-blue-600 text-white px-10 py-4 rounded-2xl font-bold hover:bg-blue-700 transition transform active:scale-95 shadow-lg shadow-blue-500/30"
+      {/* Правая часть: Описание (md:w-1/2 и flex-1 распределяют пространство) */}
+      <div className="w-full md:w-1/2 p-6 md:p-10 flex flex-col bg-white dark:bg-slate-900">
+        <div className="relative">
+          <button 
+            onClick={() => setSelectedProduct(null)} 
+            className="absolute -top-2 -right-2 text-slate-400 hover:text-slate-900 dark:hover:text-white text-2xl"
           >
-            Додати в кошик
+            &times;
           </button>
+
+          <span className="inline-block px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-bold mb-4 uppercase tracking-widest">
+            Модель {selectedOption?.chip || selectedProduct.chip}
+          </span>
+    
+          <h2 className="text-3xl font-black mb-4 dark:text-white">
+            {selectedProduct.title}
+          </h2>
+    
+          <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-6">
+            Це не просто NFC-мітка, а ваш цифровий інструмент. 
+            Ми пропонуємо <b>індивідуальне виготовлення</b>: додамо ваш логотип та заллємо виріб <b>міцною епоксидною смолою</b>.
+          </p>
+
+          {/* Кастомизация */}
+          <div className="flex items-center gap-2 mb-6 group relative w-fit">
+            <h3 className="text-sm font-bold dark:text-white">Доступна кастомізація</h3>
+            <div className="cursor-help w-4 h-4 rounded-full border border-slate-400 flex items-center justify-center text-[10px] text-slate-400 group-hover:text-blue-500 group-hover:border-blue-500 transition-colors">?</div>
+            
+            {/* Tooltip */}
+            <div className="invisible opacity-0 group-hover:visible group-hover:opacity-100 absolute bottom-full left-0 mb-3 w-64 p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 z-[130] transition-all">
+               <div className="space-y-2 text-xs">
+                  <p>🎨 <b>Дизайн:</b> Друк вашого логотипу.</p>
+                  <p>🛡️ <b>Захист:</b> Водонепроникна смола.</p>
+               </div>
+               <div className="absolute -bottom-1 left-4 w-3 h-3 bg-inherit border-r border-b border-inherit rotate-45"></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Секция выбора и кнопка прижаты к низу */}
+        <div className="mt-auto space-y-6">
+          <div>
+            <label className="block text-[10px] font-bold text-slate-400 uppercase mb-2 ml-1">Оберіть тип чипа</label>
+            <select 
+              value={selectedOption?.chip}
+              onChange={(e) => {
+                const opt = selectedProduct.options.find((o: any) => o.chip === e.target.value);
+                setSelectedOption(opt);
+              }}
+              className="w-full p-3 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none text-sm"
+            >
+              {selectedProduct.options.map((opt: any) => (
+                <option key={opt.chip} value={opt.chip}>{opt.chip} — {opt.price} грн</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center justify-between pt-6 border-t dark:border-slate-800">
+            <div>
+              <p className="text-[10px] text-slate-400 uppercase font-bold">Ціна</p>
+              <span className="text-2xl font-black dark:text-white">{selectedOption?.price || selectedProduct.price} грн</span>
+            </div>
+            <button
+              onClick={() => {
+                const currentOption = selectedOption || selectedProduct.options[0];
+                addToCart({ ...selectedProduct, title: `${selectedProduct.title} (${currentOption.chip})`, price: currentOption.price, chip: currentOption.chip });
+                setSelectedProduct(null);
+              }}
+              className="bg-blue-600 text-white px-8 py-3.5 rounded-xl font-bold hover:bg-blue-700 transition active:scale-95 shadow-lg shadow-blue-500/20"
+            >
+              В кошик
+            </button>
+          </div>
         </div>
       </div>
     </div>
