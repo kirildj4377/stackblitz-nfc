@@ -51,6 +51,35 @@ const [authPassword, setAuthPassword] = useState('');
 const [user, setUser] = useState<any>(null); // тут будем хранить вошедшего юзера
 const [authError, setAuthError] = useState('');
 
+const [chips, setChips] = useState<any[]>([]);
+const [isDashboardOpen, setIsDashboardOpen] = useState(false);
+const [loadingChips, setLoadingChips] = useState(false);
+
+// Состояния для добавления нового чипа
+const [newChipName, setNewChipName] = useState('');
+
+// Функция для загрузки чипов текущего пользователя из базы данных
+const fetchUserChips = async () => {
+  if (!user) return;
+  setLoadingChips(true);
+  const { data, error } = await supabase
+    .from('chips')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (!error && data) {
+    setChips(data);
+  }
+  setLoadingChips(false);
+};
+
+// Загружаем чипы при входе пользователя или при открытии кабинета
+useEffect(() => {
+  if (user && isDashboardOpen) {
+    fetchUserChips();
+  }
+}, [user, isDashboardOpen]);
+
 useEffect(() => {
   // Проверяем текущего юзера при загрузке
   supabase.auth.getUser().then(({ data: { user } }) => {
@@ -238,17 +267,25 @@ useEffect(() => {
             <span className="text-xs font-medium text-slate-400">UA</span>
           </h1>
           {/* Кнопка профиля/авторизации */}
+{/* Кнопка профиля/авторизации в Хедере */}
 {user ? (
   <div className="flex items-center gap-2">
+    <button 
+      onClick={() => setIsDashboardOpen(true)}
+      className="px-4 py-2 text-xs font-bold bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition"
+    >
+      👤 Особистий кабінет
+    </button>
     <button 
       onClick={async () => {
         await supabase.auth.signOut();
         setUser(null);
+        setIsDashboardOpen(false);
       }}
-      className="px-4 py-2 text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 dark:hover:text-red-400 hover:text-red-600 transition"
+      className="px-3 py-2 text-xs font-bold bg-slate-800 text-slate-400 rounded-xl hover:text-red-400 transition"
       title="Вийти з аккаунту"
     >
-      👤 Кабінет (Вихід)
+      Вихід
     </button>
   </div>
 ) : (
@@ -688,6 +725,137 @@ useEffect(() => {
         >
           {isSignUp ? 'Вже є аккаунт? Увійти' : 'Немає аккаунту? Зареєструватися'}
         </button>
+      </div>
+    </div>
+  </div>
+)}
+
+{/* --- ЛИЧНЫЙ КАБИНЕТ (ПАНЕЛЬ УПРАВЛЕНИЯ ЧИПАМИ) --- */}
+{isDashboardOpen && user && (
+  <div className="fixed inset-0 z-[150] bg-black/80 backdrop-blur-md flex items-center justify-center p-4" onClick={() => setIsDashboardOpen(false)}>
+    <div 
+      className="bg-[#0f172a] w-full max-w-3xl rounded-[2.5rem] shadow-2xl p-6 md:p-8 border border-slate-800 text-white max-h-[85vh] overflow-y-auto"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Шапка кабинета */}
+      <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-800">
+        <div>
+          <h2 className="text-2xl font-black">Власний кабінет</h2>
+          <p className="text-xs text-slate-400 mt-0.5">Керування вашими NFC-пристроями</p>
+        </div>
+        <button 
+          onClick={() => setIsDashboardOpen(false)}
+          className="text-slate-400 hover:text-white text-3xl"
+        >
+          &times;
+        </button>
+      </div>
+
+      {/* Форма добавления нового чипа (симуляция сканирования/привязки) */}
+      <div className="mb-8 p-4 bg-slate-900 rounded-2xl border border-slate-800">
+        <h3 className="text-sm font-bold mb-3 text-blue-400">🔗 Прив'язати новий чіп</h3>
+        <form onSubmit={async (e) => {
+          e.preventDefault();
+          if (!newChipName.trim()) return;
+
+          const { data, error } = await supabase
+            .from('chips')
+            .insert([
+              { 
+                user_id: user.id, 
+                name: newChipName, 
+                type: 'url', 
+                content: 'https://' 
+              }
+            ])
+            .select();
+
+          if (!error) {
+            setNewChipName('');
+            fetchUserChips(); // Перезагружаем список
+          } else {
+            alert('Помилка додавання: ' + error.message);
+          }
+        }} className="flex gap-3">
+          <input 
+            type="text" 
+            placeholder="Назва (напр. Моя Візитка, Ключ від авто)"
+            value={newChipName}
+            onChange={(e) => setNewChipName(e.target.value)}
+            className="flex-1 p-3 bg-slate-800 text-white rounded-xl border border-slate-700 outline-none text-xs focus:border-blue-500"
+          />
+          <button 
+            type="submit"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl font-bold text-xs transition"
+          >
+            Додати
+          </button>
+        </form>
+      </div>
+
+      {/* Список чипов */}
+      <div>
+        <h3 className="text-sm font-bold mb-4 text-slate-300">Ваші активні мітки ({chips.length})</h3>
+        
+        {loadingChips ? (
+          <p className="text-center text-xs text-slate-500 py-4">Завантаження міток...</p>
+        ) : chips.length === 0 ? (
+          <p className="text-center text-xs text-slate-500 py-8 bg-slate-900/50 rounded-2xl border border-dashed border-slate-800">
+            У вас ще немає прив'язаних чіпів. Додайте перший вище!
+          </p>
+        ) : (
+          <div className="space-y-4">
+            {chips.map((chip) => (
+              <div key={chip.id} className="p-4 bg-slate-900 rounded-2xl border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <h4 className="font-bold text-sm text-white">{chip.name}</h4>
+                  <p className="text-[10px] font-mono text-slate-500 mt-0.5">ID: {chip.id}</p>
+                </div>
+
+                {/* Поле ввода для мгновенного изменения ссылки чипа */}
+                <div className="flex items-center gap-2 flex-1 max-w-md">
+                  <span className="text-xs text-slate-500 font-bold">URL:</span>
+                  <input 
+                    type="text" 
+                    defaultValue={chip.content}
+                    onBlur={async (e) => {
+                      // Сохраняем в базу, когда пользователь уводит фокус с инпута
+                      const newUrl = e.target.value;
+                      if (newUrl === chip.content) return;
+
+                      const { error } = await supabase
+                        .from('chips')
+                        .update({ content: newUrl })
+                        .eq('id', chip.id);
+
+                      if (error) {
+                        alert('Не вдалося зберегти: ' + error.message);
+                      }
+                    }}
+                    placeholder="https://your-link.com"
+                    className="w-full p-2 bg-slate-800 text-white rounded-lg border border-slate-700 outline-none text-xs focus:border-green-500 transition"
+                  />
+                </div>
+
+                {/* Кнопка удаления */}
+                <button 
+                  onClick={async () => {
+                    if (!confirm('Ви впевнені, що хочете видалити цей чіп?')) return;
+                    const { error } = await supabase
+                      .from('chips')
+                      .delete()
+                      .eq('id', chip.id);
+                    
+                    if (!error) fetchUserChips();
+                  }}
+                  className="text-xs text-red-400 hover:text-red-500 font-medium px-2 py-1"
+                >
+                  Видалити
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   </div>
