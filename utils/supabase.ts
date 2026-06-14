@@ -1,7 +1,7 @@
 import { createBrowserClient } from '@supabase/ssr'
 
-// Создаем клиент для работы на фронтенде (в компонентах)
+// Передаем URL и ANON KEY как обычные строки в кавычках
 export const supabase = createBrowserClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+  'https://hqzyzwuoroxsavfmgblv.supabase.co',
+  'sb_publishable_fA8mqtdQUvwqvUpaNi2WFg_eLZ-6wAv'
+) 

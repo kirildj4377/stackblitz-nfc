@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import Script from 'next/script'; 
 import { ThemeToggle } from '@/components/ThemeToggle';
-
+import { supabase } from '@/utils/supabase';
+ 
 declare global {
   interface Window {
     Wayforpay: any;
