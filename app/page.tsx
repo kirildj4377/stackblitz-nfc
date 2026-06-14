@@ -2,12 +2,15 @@
 import React, { useState, useEffect } from 'react';
 import Script from 'next/script'; 
 import { ThemeToggle } from '@/components/ThemeToggle';
-
+import { supabase } from '@/utils/supabase';
+ 
 declare global {
   interface Window {
     Wayforpay: any;
   }
 }
+
+
 
 const TELEGRAM_BOT_TOKEN = '8656506280:AAGWKGyN3DSk6mSNiJVW1Da0NGMlJW5Z_1Q';
 const TELEGRAM_CHAT_ID = '327225760';
@@ -41,6 +44,26 @@ export default function Home() {
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState<any>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+const [isSignUp, setIsSignUp] = useState(false); // переключатель Вход / Регистрация
+const [authEmail, setAuthEmail] = useState('');
+const [authPassword, setAuthPassword] = useState('');
+const [user, setUser] = useState<any>(null); // тут будем хранить вошедшего юзера
+const [authError, setAuthError] = useState('');
+
+useEffect(() => {
+  // Проверяем текущего юзера при загрузке
+  supabase.auth.getUser().then(({ data: { user } }) => {
+    setUser(user);
+  });
+
+  // Слушаем изменения (вход/выход)
+  const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    setUser(session?.user ?? null);
+  });
+
+  return () => subscription.unsubscribe();
+}, []);
 
 // Сбрасываем выбор при открытии нового товара
 useEffect(() => {
@@ -214,6 +237,28 @@ useEffect(() => {
             NFC.STORE{' '}
             <span className="text-xs font-medium text-slate-400">UA</span>
           </h1>
+          {/* Кнопка профиля/авторизации */}
+{user ? (
+  <div className="flex items-center gap-2">
+    <button 
+      onClick={async () => {
+        await supabase.auth.signOut();
+        setUser(null);
+      }}
+      className="px-4 py-2 text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 dark:hover:text-red-400 hover:text-red-600 transition"
+      title="Вийти з аккаунту"
+    >
+      👤 Кабінет (Вихід)
+    </button>
+  </div>
+) : (
+  <button
+    onClick={() => { setIsSignUp(false); setIsAuthModalOpen(true); }}
+    className="px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-sm hover:opacity-90 transition"
+  >
+    Увійти
+  </button>
+)}
           <div className="flex items-center gap-3">
             {/* Кнопка Кастомізація */}
   <button
@@ -449,11 +494,11 @@ useEffect(() => {
       {selectedProduct && (
   <div className="fixed inset-0 z-[120] bg-black/80 backdrop-blur-md flex items-center justify-center p-4" onClick={() => setSelectedProduct(null)}>
     <div 
-      className="bg-white dark:bg-[#0f172a] w-full max-w-4xl rounded-[2.5rem] overflow-hidden shadow-2xl animate-fade-in-up flex flex-col md:flex-row min-h-[500px]"
+      className="bg-[#0f172a] w-full max-w-4xl rounded-[2.5rem] overflow-hidden shadow-2xl animate-fade-in-up flex flex-col md:flex-row border border-slate-800"
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Левая часть: Изображение (md:w-1/2 фиксирует половину ширины) */}
-      <div className="w-full md:w-1/2 h-64 md:h-auto relative">
+      {/* Левая часть: Изображение */}
+      <div className="w-full md:w-1/2 h-64 md:h-[550px] relative">
         <img 
           src={selectedProduct.image} 
           alt={selectedProduct.title} 
@@ -461,80 +506,188 @@ useEffect(() => {
         />
       </div>
 
-      {/* Правая часть: Описание (md:w-1/2 и flex-1 распределяют пространство) */}
-      <div className="w-full md:w-1/2 p-6 md:p-10 flex flex-col bg-white dark:bg-slate-900">
+      {/* Правая часть: Описание и Выбор */}
+      <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-between bg-[#0f172a] text-white">
         <div className="relative">
           <button 
             onClick={() => setSelectedProduct(null)} 
-            className="absolute -top-2 -right-2 text-slate-400 hover:text-slate-900 dark:hover:text-white text-2xl"
+            className="absolute top-0 right-0 text-slate-400 hover:text-white text-3xl transition"
           >
             &times;
           </button>
 
-          <span className="inline-block px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-bold mb-4 uppercase tracking-widest">
+          {/* Модель чипа */}
+          <span className="inline-block px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-[10px] font-bold mb-4 uppercase tracking-widest border border-blue-500/20">
             Модель {selectedOption?.chip || selectedProduct.chip}
           </span>
     
-          <h2 className="text-3xl font-black mb-4 dark:text-white">
+          <h2 className="text-2xl md:text-3xl font-black mb-3 text-white leading-tight">
             {selectedProduct.title}
           </h2>
     
-          <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-6">
+          <p className="text-slate-400 text-xs md:text-sm leading-relaxed mb-5">
             Це не просто NFC-мітка, а ваш цифровий інструмент. 
             Ми пропонуємо <b>індивідуальне виготовлення</b>: додамо ваш логотип та заллємо виріб <b>міцною епоксидною смолою</b>.
           </p>
 
           {/* Кастомизация */}
-          <div className="flex items-center gap-2 mb-6 group relative w-fit">
-            <h3 className="text-sm font-bold dark:text-white">Доступна кастомізація</h3>
-            <div className="cursor-help w-4 h-4 rounded-full border border-slate-400 flex items-center justify-center text-[10px] text-slate-400 group-hover:text-blue-500 group-hover:border-blue-500 transition-colors">?</div>
+          <div className="flex items-center gap-2 mb-5 group relative w-fit">
+            <h3 className="text-xs font-bold text-slate-300">Доступна кастомізація</h3>
+            <div className="cursor-help w-4 h-4 rounded-full border border-slate-600 flex items-center justify-center text-[10px] text-slate-400 group-hover:text-blue-400 group-hover:border-blue-400 transition-colors">?</div>
             
-            {/* Tooltip */}
-            <div className="invisible opacity-0 group-hover:visible group-hover:opacity-100 absolute bottom-full left-0 mb-3 w-64 p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 z-[130] transition-all">
-               <div className="space-y-2 text-xs">
+            {/* Tooltip под темную тему */}
+            <div className="invisible opacity-0 group-hover:visible group-hover:opacity-100 absolute bottom-full left-0 mb-2 w-60 p-3 bg-slate-800 rounded-xl shadow-2xl border border-slate-700 z-[130] transition-all text-[11px] text-slate-300">
+               <div className="space-y-1.5">
                   <p>🎨 <b>Дизайн:</b> Друк вашого логотипу.</p>
                   <p>🛡️ <b>Захист:</b> Водонепроникна смола.</p>
                </div>
-               <div className="absolute -bottom-1 left-4 w-3 h-3 bg-inherit border-r border-b border-inherit rotate-45"></div>
+               <div className="absolute -bottom-1 left-4 w-2.5 h-2.5 bg-slate-800 border-r border-b border-slate-700 rotate-45"></div>
             </div>
           </div>
         </div>
 
-        {/* Секция выбора и кнопка прижаты к низу */}
-        <div className="mt-auto space-y-6">
+        {/* Секция выбора чипа */}
+        <div className="space-y-5">
           <div>
-            <label className="block text-[10px] font-bold text-slate-400 uppercase mb-2 ml-1">Оберіть тип чипа</label>
+            <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 ml-1 tracking-wider">Оберіть тип чипа</label>
             <select 
               value={selectedOption?.chip}
               onChange={(e) => {
-                const opt = selectedProduct.options.find((o: any) => o.chip === e.target.value);
-                setSelectedOption(opt);
+                const opt = selectedProduct.options?.find((o: any) => o.chip === e.target.value);
+                if (opt) setSelectedOption(opt);
               }}
-              className="w-full p-3 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none text-sm"
+              className="w-full p-3 bg-slate-800 text-white rounded-xl border border-slate-700 outline-none text-xs focus:border-blue-500 cursor-pointer"
             >
-              {selectedProduct.options.map((opt: any) => (
-                <option key={opt.chip} value={opt.chip}>{opt.chip} — {opt.price} грн</option>
+              {selectedProduct.options?.map((opt: any) => (
+                <option key={opt.chip} value={opt.chip} className="bg-slate-800 text-white">
+                  {opt.chip} — {opt.price} грн
+                </option>
               ))}
             </select>
           </div>
 
-          <div className="flex items-center justify-between pt-6 border-t dark:border-slate-800">
+          {/* Низ: Цена и Кнопка */}
+          <div className="flex items-center justify-between pt-4 border-t border-slate-800">
             <div>
-              <p className="text-[10px] text-slate-400 uppercase font-bold">Ціна</p>
-              <span className="text-2xl font-black dark:text-white">{selectedOption?.price || selectedProduct.price} грн</span>
+              <p className="text-[9px] text-slate-400 uppercase font-bold tracking-wider">Разом</p>
+              <span className="text-2xl font-black text-white">{selectedOption?.price || selectedProduct.price} грн</span>
             </div>
             <button
               onClick={() => {
-                const currentOption = selectedOption || selectedProduct.options[0];
-                addToCart({ ...selectedProduct, title: `${selectedProduct.title} (${currentOption.chip})`, price: currentOption.price, chip: currentOption.chip });
+                const currentOption = selectedOption || selectedProduct.options?.[0] || { chip: selectedProduct.chip, price: selectedProduct.price };
+                addToCart({ 
+                  ...selectedProduct, 
+                  title: `${selectedProduct.title} (${currentOption.chip})`, 
+                  price: currentOption.price, 
+                  chip: currentOption.chip 
+                });
                 setSelectedProduct(null);
               }}
-              className="bg-blue-600 text-white px-8 py-3.5 rounded-xl font-bold hover:bg-blue-700 transition active:scale-95 shadow-lg shadow-blue-500/20"
+              className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition active:scale-95 text-xs shadow-lg shadow-blue-500/10"
             >
               В кошик
             </button>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+)}
+
+{/* --- МОДАЛЬНОЕ ОКНО АВТОРИЗАЦИИ --- */}
+{isAuthModalOpen && (
+  <div className="fixed inset-0 z-[200] bg-black/70 backdrop-blur-md flex items-center justify-center p-4" onClick={() => setIsAuthModalOpen(false)}>
+    <div 
+      className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] shadow-2xl p-8 animate-fade-in-up relative"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <button 
+        onClick={() => setIsAuthModalOpen(false)}
+        className="absolute top-6 right-6 text-slate-400 hover:text-slate-900 dark:hover:text-white text-2xl"
+      >
+        &times;
+      </button>
+
+      <h2 className="text-3xl font-black mb-2 dark:text-white text-center">
+        {isSignUp ? 'Реєстрація' : 'Вхід до кабінету'}
+      </h2>
+      <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 text-center">
+        {isSignUp ? 'Створіть аккаунт для керування чіпами' : 'Керуйте своїми NFC-мітками в один клік'}
+      </p>
+
+      {authError && (
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs rounded-xl border border-red-100 dark:border-red-900/50 text-center font-medium">
+          {authError}
+        </div>
+      )}
+
+      <form onSubmit={async (e) => {
+        e.preventDefault();
+        setAuthError('');
+        
+        if (isSignUp) {
+          // Регистрация в Supabase
+          const { data, error } = await supabase.auth.signUp({
+            email: authEmail,
+            password: authPassword,
+          });
+          if (error) setAuthError(error.message);
+          else {
+            alert('Реєстрація успішна! Перевірте пошту для підтвердження (якщо увімкнено в Supabase).');
+            setIsAuthModalOpen(false);
+          }
+        } else {
+          // Вход в Supabase
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email: authEmail,
+            password: authPassword,
+          });
+          if (error) setAuthError('Невірна пошта або пароль');
+          else {
+            setUser(data.user);
+            setIsAuthModalOpen(false);
+          }
+        }
+      }} className="space-y-4">
+        <div>
+          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1">Email</label>
+          <input 
+            type="email" 
+            required
+            placeholder="your@email.com"
+            value={authEmail}
+            onChange={(e) => setAuthEmail(e.target.value)}
+            className="w-full p-3.5 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none text-sm focus:ring-2 focus:ring-blue-500 transition"
+          />
+        </div>
+
+        <div>
+          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1">Пароль</label>
+          <input 
+            type="password" 
+            required
+            placeholder="••••••••"
+            value={authPassword}
+            onChange={(e) => setAuthPassword(e.target.value)}
+            className="w-full p-3.5 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none text-sm focus:ring-2 focus:ring-blue-500 transition"
+          />
+        </div>
+
+        <button 
+          type="submit"
+          className="w-full mt-4 bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-500/20 text-sm"
+        >
+          {isSignUp ? 'Створити аккаунт' : 'Увійти'}
+        </button>
+      </form>
+
+      <div className="mt-6 text-center">
+        <button 
+          onClick={() => { setAuthError(''); setIsSignUp(!isSignUp); }}
+          className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
+        >
+          {isSignUp ? 'Вже є аккаунт? Увійти' : 'Немає аккаунту? Зареєструватися'}
+        </button>
       </div>
     </div>
   </div>
