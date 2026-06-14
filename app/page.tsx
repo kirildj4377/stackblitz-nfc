@@ -9,6 +9,8 @@ declare global {
   }
 }
 
+
+
 const TELEGRAM_BOT_TOKEN = '8656506280:AAGWKGyN3DSk6mSNiJVW1Da0NGMlJW5Z_1Q';
 const TELEGRAM_CHAT_ID = '327225760';
 
@@ -41,6 +43,26 @@ export default function Home() {
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState<any>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+const [isSignUp, setIsSignUp] = useState(false); // переключатель Вход / Регистрация
+const [authEmail, setAuthEmail] = useState('');
+const [authPassword, setAuthPassword] = useState('');
+const [user, setUser] = useState<any>(null); // тут будем хранить вошедшего юзера
+const [authError, setAuthError] = useState('');
+
+useEffect(() => {
+  // Проверяем текущего юзера при загрузке
+  supabase.auth.getUser().then(({ data: { user } }) => {
+    setUser(user);
+  });
+
+  // Слушаем изменения (вход/выход)
+  const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    setUser(session?.user ?? null);
+  });
+
+  return () => subscription.unsubscribe();
+}, []);
 
 // Сбрасываем выбор при открытии нового товара
 useEffect(() => {
@@ -214,6 +236,28 @@ useEffect(() => {
             NFC.STORE{' '}
             <span className="text-xs font-medium text-slate-400">UA</span>
           </h1>
+          {/* Кнопка профиля/авторизации */}
+{user ? (
+  <div className="flex items-center gap-2">
+    <button 
+      onClick={async () => {
+        await supabase.auth.signOut();
+        setUser(null);
+      }}
+      className="px-4 py-2 text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 dark:hover:text-red-400 hover:text-red-600 transition"
+      title="Вийти з аккаунту"
+    >
+      👤 Кабінет (Вихід)
+    </button>
+  </div>
+) : (
+  <button
+    onClick={() => { setIsSignUp(false); setIsAuthModalOpen(true); }}
+    className="px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-sm hover:opacity-90 transition"
+  >
+    Увійти
+  </button>
+)}
           <div className="flex items-center gap-3">
             {/* Кнопка Кастомізація */}
   <button
@@ -535,6 +579,105 @@ useEffect(() => {
             </button>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+)}
+
+{/* --- МОДАЛЬНОЕ ОКНО АВТОРИЗАЦИИ --- */}
+{isAuthModalOpen && (
+  <div className="fixed inset-0 z-[200] bg-black/70 backdrop-blur-md flex items-center justify-center p-4" onClick={() => setIsAuthModalOpen(false)}>
+    <div 
+      className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] shadow-2xl p-8 animate-fade-in-up relative"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <button 
+        onClick={() => setIsAuthModalOpen(false)}
+        className="absolute top-6 right-6 text-slate-400 hover:text-slate-900 dark:hover:text-white text-2xl"
+      >
+        &times;
+      </button>
+
+      <h2 className="text-3xl font-black mb-2 dark:text-white text-center">
+        {isSignUp ? 'Реєстрація' : 'Вхід до кабінету'}
+      </h2>
+      <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 text-center">
+        {isSignUp ? 'Створіть аккаунт для керування чіпами' : 'Керуйте своїми NFC-мітками в один клік'}
+      </p>
+
+      {authError && (
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs rounded-xl border border-red-100 dark:border-red-900/50 text-center font-medium">
+          {authError}
+        </div>
+      )}
+
+      <form onSubmit={async (e) => {
+        e.preventDefault();
+        setAuthError('');
+        
+        if (isSignUp) {
+          // Регистрация в Supabase
+          const { data, error } = await supabase.auth.signUp({
+            email: authEmail,
+            password: authPassword,
+          });
+          if (error) setAuthError(error.message);
+          else {
+            alert('Реєстрація успішна! Перевірте пошту для підтвердження (якщо увімкнено в Supabase).');
+            setIsAuthModalOpen(false);
+          }
+        } else {
+          // Вход в Supabase
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email: authEmail,
+            password: authPassword,
+          });
+          if (error) setAuthError('Невірна пошта або пароль');
+          else {
+            setUser(data.user);
+            setIsAuthModalOpen(false);
+          }
+        }
+      }} className="space-y-4">
+        <div>
+          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1">Email</label>
+          <input 
+            type="email" 
+            required
+            placeholder="your@email.com"
+            value={authEmail}
+            onChange={(e) => setAuthEmail(e.target.value)}
+            className="w-full p-3.5 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none text-sm focus:ring-2 focus:ring-blue-500 transition"
+          />
+        </div>
+
+        <div>
+          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1">Пароль</label>
+          <input 
+            type="password" 
+            required
+            placeholder="••••••••"
+            value={authPassword}
+            onChange={(e) => setAuthPassword(e.target.value)}
+            className="w-full p-3.5 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none text-sm focus:ring-2 focus:ring-blue-500 transition"
+          />
+        </div>
+
+        <button 
+          type="submit"
+          className="w-full mt-4 bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-500/20 text-sm"
+        >
+          {isSignUp ? 'Створити аккаунт' : 'Увійти'}
+        </button>
+      </form>
+
+      <div className="mt-6 text-center">
+        <button 
+          onClick={() => { setAuthError(''); setIsSignUp(!isSignUp); }}
+          className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
+        >
+          {isSignUp ? 'Вже є аккаунт? Увійти' : 'Немає аккаунту? Зареєструватися'}
+        </button>
       </div>
     </div>
   </div>
