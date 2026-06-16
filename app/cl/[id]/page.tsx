@@ -79,25 +79,30 @@ export default function RedirectPage() {
 
   // Функция для привязки чипа к текущему вошедшему юзеру
   const claimChip = async () => {
-    if (!currentUser) {
-      // Если не залогинен — отправляем на главную логиниться
+    // Проверяем юзера ещё раз прямо перед отправкой
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
       alert('Будь ласка, спочатку увійдіть в аккаунт або зареєструйтесь на головній сторінці!');
       router.push('/');
       return;
     }
 
+    setStatus('Прив’язуємо чіп до вашого профілю...');
+
     const { error } = await supabase
       .from('chips')
       .update({ 
-        user_id: currentUser.id,
+        user_id: user.id,
         name: chipName.trim() || 'Мій новий чіп'
       })
       .eq('id', id);
 
     if (!error) {
       alert('Вітаємо! Чіп успішно прив’язано до вашого аккаунту. Тепер ви можете керувати ним у власному кабінеті.');
-      router.push('/'); // отправляем на главную, где откроется его кабинет
+      router.push('/'); // Перенаправляем на главную, где теперь будет отображаться этот чип
     } else {
+      setStatus('Новий NFC-пристрій виявлено!'); // возвращаем статус назад в случае ошибки
       alert('Помилка активації: ' + error.message);
     }
   };
