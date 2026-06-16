@@ -33,6 +33,7 @@ export default function RedirectPage() {
         const { data: chip, error } = await supabase
           .from('chips')
           .select('*')
+          .eq('id', id)
           .maybeSingle();
 
         if (error) {
