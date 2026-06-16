@@ -23,12 +23,12 @@ export default function RedirectPage() {
       if (!id) return;
       
       try {
-        // Запрос к таблице chips по ID
+        // Заменяем .single() на .maybeSingle()
         const { data: chip, error } = await supabase
           .from('chips')
           .select('content')
           .eq('id', id)
-          .single();
+          .maybeSingle(); // <-- Безопасный метод
 
         if (error) {
           setStatus('Помилка бази даних');
@@ -36,19 +36,24 @@ export default function RedirectPage() {
           return;
         }
 
-        if (!chip || !chip.content) {
+        // Если метод вернул null, значит чипа с таким ID нет, или он скрыт настройками RLS
+        if (!chip) {
+          setStatus('Чіп не знайдено');
+          setErrorDetails('Запис із таким ID відсутній у базі даних або доступ до нього заблоковано правилами безпеки (RLS).');
+          return;
+        }
+
+        if (!chip.content) {
           setStatus('Чіп знайдено, але посилання порожнє');
           return;
         }
 
-        // Форматируем ссылку
+        setStatus('Перехід...');
         let targetUrl = chip.content.trim();
         if (!/^https?:\/\//i.test(targetUrl)) {
           targetUrl = `https://${targetUrl}`;
         }
 
-        setStatus('Перехід...');
-        // Физический редирект
         window.location.href = targetUrl;
 
       } catch (err: any) {
