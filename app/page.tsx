@@ -805,55 +805,137 @@ useEffect(() => {
           </p>
         ) : (
           <div className="space-y-4">
-            {chips.map((chip) => (
-              <div key={chip.id} className="p-4 bg-slate-900 rounded-2xl border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                  <h4 className="font-bold text-sm text-white">{chip.name}</h4>
-                  <p className="text-[10px] font-mono text-slate-500 mt-0.5">ID: {chip.id}</p>
-                </div>
+            {chips.map((chip) => {
+  // Локальное состояние для управления вкладками редактирования внутри каждого чипа
+  const [activeType, setActiveType] = useState(chip.type || 'url');
 
-                {/* Поле ввода для мгновенного изменения ссылки чипа */}
-                <div className="flex items-center gap-2 flex-1 max-w-md">
-                  <span className="text-xs text-slate-500 font-bold">URL:</span>
-                  <input 
-                    type="text" 
-                    defaultValue={chip.content}
-                    onBlur={async (e) => {
-                      // Сохраняем в базу, когда пользователь уводит фокус с инпута
-                      const newUrl = e.target.value;
-                      if (newUrl === chip.content) return;
+  const updateChipField = async (fields: Object) => {
+    const { error } = await supabase
+      .from('chips')
+      .update(fields)
+      .eq('id', chip.id);
+    if (error) alert('Помилка збереження: ' + error.message);
+  };
 
-                      const { error } = await supabase
-                        .from('chips')
-                        .update({ content: newUrl })
-                        .eq('id', chip.id);
+  return (
+    <div key={chip.id} className="p-6 bg-slate-900 rounded-[2rem] border border-slate-800 flex flex-col gap-4">
+      {/* Шапка чипа */}
+      <div className="flex justify-between items-start border-b border-slate-800/60 pb-3">
+        <div>
+          <input 
+            type="text" 
+            defaultValue={chip.name}
+            onBlur={(e) => updateChipField({ name: e.target.value })}
+            className="font-bold text-sm text-white bg-transparent outline-none border-b border-transparent focus:border-blue-500"
+          />
+          <p className="text-[9px] font-mono text-slate-500 mt-1">ID: {chip.id}</p>
+        </div>
+        <button 
+          onClick={async () => {
+            if (!confirm('Ви впевнені, що хочете видалити цей чіп?')) return;
+            const { error } = await supabase.from('chips').delete().eq('id', chip.id);
+            if (!error) fetchUserChips();
+          }}
+          className="text-xs text-red-400 hover:text-red-500 transition"
+        >
+          Видалити
+        </button>
+      </div>
 
-                      if (error) {
-                        alert('Не вдалося зберегти: ' + error.message);
-                      }
-                    }}
-                    placeholder="https://your-link.com"
-                    className="w-full p-2 bg-slate-800 text-white rounded-lg border border-slate-700 outline-none text-xs focus:border-green-500 transition"
-                  />
-                </div>
+      {/* Селектор типа функции чипа */}
+      <div className="flex flex-wrap gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800/80">
+        {[
+          { id: 'url', label: '🔗 Посилання' },
+          { id: 'text', label: '📝 Текст' },
+          { id: 'vcard', label: '📇 Візитка' },
+          { id: 'wifi', label: '📶 Wi-Fi' }
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={async () => {
+              setActiveType(tab.id);
+              await updateChipField({ type: tab.id });
+            }}
+            className={`flex-1 text-[10px] font-bold py-2 px-2.5 rounded-lg transition ${
+              activeType === tab.id ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
-                {/* Кнопка удаления */}
-                <button 
-                  onClick={async () => {
-                    if (!confirm('Ви впевнені, що хочете видалити цей чіп?')) return;
-                    const { error } = await supabase
-                      .from('chips')
-                      .delete()
-                      .eq('id', chip.id);
-                    
-                    if (!error) fetchUserChips();
-                  }}
-                  className="text-xs text-red-400 hover:text-red-500 font-medium px-2 py-1"
-                >
-                  Видалити
-                </button>
-              </div>
-            ))}
+      {/* Динамические поля ввода в зависимости от выбранного типа */}
+      <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-800/40 space-y-3">
+        
+        {activeType === 'url' && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-500 font-bold">URL:</span>
+            <input 
+              type="text" 
+              defaultValue={chip.content}
+              onBlur={(e) => updateChipField({ content: e.target.value })}
+              placeholder="https://instagram.com/yourprofile"
+              className="w-full p-2.5 bg-slate-800 text-white rounded-xl border border-slate-700 outline-none text-xs focus:border-blue-500"
+            />
+          </div>
+        )}
+
+        {activeType === 'text' && (
+          <div>
+            <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Ваш текст / нотатка</label>
+            <textarea 
+              defaultValue={chip.content}
+              onBlur={(e) => updateChipField({ content: e.target.value })}
+              placeholder="Введіть будь-який текст, який побачить людина при скандуванні..."
+              rows={3}
+              className="w-full p-2.5 bg-slate-800 text-white rounded-xl border border-slate-700 outline-none text-xs focus:border-blue-500 resize-none"
+            />
+          </div>
+        )}
+
+        {activeType === 'vcard' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[9px] text-slate-500 font-bold uppercase mb-1">Повне Ім'я</label>
+              <input type="text" defaultValue={chip.title} onBlur={(e) => updateChipField({ title: e.target.value })} placeholder="Іван Іванов" className="w-full p-2 bg-slate-800 text-white rounded-lg border border-slate-700 outline-none text-xs focus:border-blue-500" />
+            </div>
+            <div>
+              <label className="block text-[9px] text-slate-500 font-bold uppercase mb-1">Телефон</label>
+              <input type="text" defaultValue={chip.phone} onBlur={(e) => updateChipField({ phone: e.target.value })} placeholder="+380..." className="w-full p-2 bg-slate-800 text-white rounded-lg border border-slate-700 outline-none text-xs focus:border-blue-500" />
+            </div>
+            <div>
+              <label className="block text-[9px] text-slate-500 font-bold uppercase mb-1">Email</label>
+              <input type="email" defaultValue={chip.email} onBlur={(e) => updateChipField({ email: e.target.value })} placeholder="ivan@mail.com" className="w-full p-2 bg-slate-800 text-white rounded-lg border border-slate-700 outline-none text-xs focus:border-blue-500" />
+            </div>
+            <div>
+              <label className="block text-[9px] text-slate-500 font-bold uppercase mb-1">Сайт (опціонально)</label>
+              <input type="text" defaultValue={chip.content} onBlur={(e) => updateChipField({ content: e.target.value })} placeholder="www.site.com" className="w-full p-2 bg-slate-800 text-white rounded-lg border border-slate-700 outline-none text-xs focus:border-blue-500" />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-[9px] text-slate-500 font-bold uppercase mb-1">Адреса / Де живе</label>
+              <input type="text" defaultValue={chip.address} onBlur={(e) => updateChipField({ address: e.target.value })} placeholder="м. Київ, вул. Хрещатик" className="w-full p-2 bg-slate-800 text-white rounded-lg border border-slate-700 outline-none text-xs focus:border-blue-500" />
+            </div>
+          </div>
+        )}
+
+        {activeType === 'wifi' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[9px] text-slate-500 font-bold uppercase mb-1">Назва мережі (SSID)</label>
+              <input type="text" defaultValue={chip.wifi_ssid} onBlur={(e) => updateChipField({ wifi_ssid: e.target.value })} placeholder="Home_WiFi" className="w-full p-2 bg-slate-800 text-white rounded-lg border border-slate-700 outline-none text-xs focus:border-blue-500" />
+            </div>
+            <div>
+              <label className="block text-[9px] text-slate-500 font-bold uppercase mb-1">Пароль від Wi-Fi</label>
+              <input type="text" defaultValue={chip.wifi_password} onBlur={(e) => updateChipField({ wifi_password: e.target.value })} placeholder="12345678" className="w-full p-2 bg-slate-800 text-white rounded-lg border border-slate-700 outline-none text-xs focus:border-blue-500" />
+            </div>
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+})}
           </div>
         )}
       </div>

@@ -14,19 +14,21 @@ export default function RedirectPage() {
   const id = params?.id as string;
   const router = useRouter();
   
-  const [status, setStatus] = useState('Перенаправлення...');
+  const [status, setStatus] = useState('Завантаження контенту...');
   const [errorDetails, setErrorDetails] = useState('');
   const [isUnclaimed, setIsUnclaimed] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [chipName, setChipName] = useState('');
+  
+  // Хранение данных чипа для отображения микро-страниц
+  const [chipData, setChipData] = useState<any>(null);
 
   useEffect(() => {
-    // Проверяем, залогинен ли сейчас кто-то на сайте
     supabase.auth.getUser().then(({ data: { user } }) => {
       setCurrentUser(user);
     });
 
-    const checkChipAndRedirect = async () => {
+    const loadChipData = async () => {
       if (!id) return;
       
       try {
@@ -43,30 +45,30 @@ export default function RedirectPage() {
         }
 
         if (!chip) {
-          setStatus('Чіп не знайдено');
-          setErrorDetails('Цей пристрій не зареєстрований в нашій системі.');
+          setStatus('Пристрій не знайдено');
           return;
         }
 
-        // КЛЮЧЕВАЯ ЛОГИКА ВАРИАНТА А: Чип ни за кем не закреплен
+        // Проверка на Вариант А (чип новый)
         if (!chip.user_id) {
           setIsUnclaimed(true);
           setStatus('Новий NFC-пристрій виявлено!');
           return;
         }
 
-        // Если владелец есть — перенаправляем как обычно
-        if (!chip.content || chip.content === 'https://') {
-          setStatus('Чіп активовано, але посилання ще порожнє');
-          return;
-        }
+        setChipData(chip);
+        setStatus(''); // Контент загружен, убираем статус загрузки
 
-        setStatus('Перехід...');
-        let targetUrl = chip.content.trim();
-        if (!/^https?:\/\//i.test(targetUrl)) {
-          targetUrl = `https://${targetUrl}`;
+        // Если тип чипа - это просто ссылка, выполняем мгновенный автоматический редирект
+        if (chip.type === 'url' || !chip.type) {
+          let targetUrl = (chip.content || '').trim();
+          if (targetUrl && targetUrl !== 'https://') {
+            if (!/^https?:\/\//i.test(targetUrl)) targetUrl = `https://${targetUrl}`;
+            window.location.href = targetUrl;
+          } else {
+            setStatus('Чіп активовано, але посилання порожнє');
+          }
         }
-        window.location.href = targetUrl;
 
       } catch (err: any) {
         setStatus('Системна помилка');
@@ -74,94 +76,143 @@ export default function RedirectPage() {
       }
     };
 
-    checkChipAndRedirect();
+    loadChipData();
   }, [id]);
 
-  // Функция для привязки чипа к текущему вошедшему юзеру
-  const claimChip = async () => {
-    // Проверяем юзера ещё раз прямо перед отправкой
-    const { data: { user } } = await supabase.auth.getUser();
+  // Генерация файла контакта vCard для скачивания на смартфон
+  const downloadVCard = () => {
+    if (!chipData) return;
+    const vcardContent = `BEGIN:VCARD
+VERSION:3.0
+FN:${chipData.title || 'NFC Контакт'}
+TEL:${chipData.phone || ''}
+EMAIL:${chipData.email || ''}
+ADR:;;${chipData.address || ''};;;;
+URL:${chipData.content || ''}
+END:VCARD`;
 
+    const blob = new Blob([vcardContent], { type: 'text/vcard;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `${chipData.title || 'contact'}.vcf`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Метод привязки нового чипа (Вариант А)
+  const claimChip = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      alert('Будь ласка, спочатку увійдіть в аккаунт або зареєструйтесь на головній сторінці!');
+      alert('Будь ласка, увійдіть в аккаунт на головній сторінці!');
       router.push('/');
       return;
     }
 
-    setStatus('Прив’язуємо чіп до вашого профілю...');
-
     const { error } = await supabase
       .from('chips')
-      .update({ 
-        user_id: user.id,
-        name: chipName.trim() || 'Мій новий чіп'
-      })
+      .update({ user_id: user.id, name: chipName.trim() || 'Мій новий чіп' })
       .eq('id', id);
 
     if (!error) {
-      alert('Вітаємо! Чіп успішно прив’язано до вашого аккаунту. Тепер ви можете керувати ним у власному кабінеті.');
-      router.push('/'); // Перенаправляем на главную, где теперь будет отображаться этот чип
+      alert('Чіп успішно активовано!');
+      router.push('/');
     } else {
-      setStatus('Новий NFC-пристрій виявлено!'); // возвращаем статус назад в случае ошибки
-      alert('Помилка активації: ' + error.message);
+      alert('Помилка: ' + error.message);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-white flex flex-col items-center justify-center p-6 font-sans">
-      <div className="w-full max-w-md text-center space-y-6 bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-800 backdrop-blur-sm shadow-xl">
+    <div className="min-h-screen bg-[#0f172a] text-white flex flex-col items-center justify-center p-4 font-sans">
+      <div className="w-full max-w-sm bg-slate-900/60 p-6 rounded-[2.5rem] border border-slate-800 text-center shadow-2xl backdrop-blur-md">
         
-        {!isUnclaimed ? (
-          // Стандартный экран загрузки/ошибки редиректа
-          <>
-            <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <h1 className="text-xl font-bold tracking-tight">{status}</h1>
-            <p className="text-xs text-slate-500 font-mono break-all">ID: {id || 'не визначено'}</p>
-            {errorDetails && (
-              <div className="p-4 bg-red-950/40 border border-red-900/50 rounded-2xl text-xs text-red-400 text-left font-mono">
-                {errorDetails}
-              </div>
-            )}
-          </>
-        ) : (
-          // Красивый экран первичной активации нового чипа
-          <div className="space-y-4 text-left animate-fade-in-up">
-            <div className="w-16 h-16 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex items-center justify-center text-blue-400 text-2xl mx-auto mb-2 shadow-lg">
-              ✨
-            </div>
-            <h1 className="text-2xl font-black text-center text-white">Активація пристрою</h1>
-            <p className="text-xs text-slate-400 text-center leading-relaxed">
-              Цей NFC-чіп ще не прив'язаний до жодного профілю. Ви можете стати його власником прямо зараз.
-            </p>
-
-            <div className="pt-4 space-y-4">
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1">Дайте назву вашому чіпу</label>
-                <input 
-                  type="text" 
-                  placeholder="Наприклад: Моя візитка, Instagram наклейка"
-                  value={chipName}
-                  onChange={(e) => setChipName(e.target.value)}
-                  className="w-full p-3.5 bg-slate-800 text-white rounded-xl border border-slate-700 outline-none text-xs focus:border-blue-500 transition"
-                />
-              </div>
-
-              <button 
-                onClick={claimChip}
-                className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-500/20 text-xs"
-              >
-                {currentUser ? 'Прив’язати до мого аккаунту' : 'Увійти та активувати'}
-              </button>
-              
-              {!currentUser && (
-                <p className="text-[10px] text-center text-amber-400 font-medium bg-amber-500/5 border border-amber-500/10 p-2.5 rounded-xl">
-                  ⚠️ Ви не авторизовані. Натискання кнопки перенаправить вас на головну сторінку для входу. После входу просто вдруге відскануйте чіп.
-                </p>
-              )}
-            </div>
+        {status && (
+          <div className="py-8">
+            <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-sm font-bold text-slate-300">{status}</p>
+            {errorDetails && <p className="text-xs text-red-400 font-mono mt-4 p-3 bg-red-950/20 border border-red-900/30 rounded-xl">{errorDetails}</p>}
           </div>
         )}
-        
+
+        {/* ЭКРАН АКТИВАЦИИ (ВАРИАНТ А) */}
+        {isUnclaimed && (
+          <div className="space-y-4 text-left">
+            <h2 className="text-xl font-black text-center text-white">✨ Активація NFC</h2>
+            <p className="text-xs text-slate-400 text-center leading-relaxed">Цей пристрій ще не прив'язаний до профілю. Бажаєте стати його власником?</p>
+            <input 
+              type="text" 
+              placeholder="Назва мітки (напр. Моя візитка)"
+              value={chipName}
+              onChange={(e) => setChipName(e.target.value)}
+              className="w-full p-3 bg-slate-800 rounded-xl border border-slate-700 outline-none text-xs focus:border-blue-500 text-white"
+            />
+            <button onClick={claimChip} className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 text-xs shadow-lg shadow-blue-500/20">
+              {currentUser ? 'Прив’язати до мого аккаунту' : 'Увійти та активувати'}
+            </button>
+          </div>
+        )}
+
+        {/* ОТОБРАЖЕНИЕ МУЛЬТИ-КОНТЕНТА */}
+        {chipData && !isUnclaimed && (
+          <div className="space-y-5 animate-fade-in text-left">
+            
+            {/* ТИП: ТЕКСТОВАЯ ЗАМЕТКА */}
+            {chipData.type === 'text' && (
+              <div className="space-y-3">
+                <div className="text-2xl text-center">📝</div>
+                <h3 className="text-base font-black text-center text-white">{chipData.name}</h3>
+                <div className="p-4 bg-slate-950/60 rounded-2xl border border-slate-800 text-xs text-slate-300 whitespace-pre-wrap leading-relaxed font-medium">
+                  {chipData.content || 'Текст відсутній.'}
+                </div>
+              </div>
+            )}
+
+            {/* ТИП: ЦИФРОВАЯ ВИЗИТКА (vCard) */}
+            {chipData.type === 'vcard' && (
+              <div className="space-y-4">
+                <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-xl font-black mx-auto border-4 border-slate-800 shadow-md">
+                  {chipData.title ? chipData.title.charAt(0).toUpperCase() : '👤'}
+                </div>
+                <div className="text-center">
+                  <h3 className="text-lg font-black text-white">{chipData.title || 'Цифрова візитка'}</h3>
+                  <p className="text-[10px] text-slate-500 mt-0.5">NFC Business Card</p>
+                </div>
+                <div className="space-y-2 text-xs bg-slate-950/40 p-4 rounded-2xl border border-slate-800/60">
+                  {chipData.phone && <p className="text-slate-300">📞 <span className="font-bold ml-1">{chipData.phone}</span></p>}
+                  {chipData.email && <p className="text-slate-300">✉️ <span className="text-blue-400 ml-1 break-all">{chipData.email}</span></p>}
+                  {chipData.address && <p className="text-slate-400 text-[11px] mt-1 pt-1 border-t border-slate-800/40">📍 {chipData.address}</p>}
+                  {chipData.content && chipData.content !== 'https://' && (
+                    <p className="text-slate-400 text-[11px]">🌐 <a href={chipData.content} target="_blank" className="text-blue-500 underline ml-1">{chipData.content}</a></p>
+                  )}
+                </div>
+                <button onClick={downloadVCard} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition text-xs shadow-lg shadow-blue-500/15">
+                  📥 Додати в контакти
+                </button>
+              </div>
+            )}
+
+            {/* ТИП: WI-FI СЕТЬ */}
+            {chipData.type === 'wifi' && (
+              <div className="space-y-4 text-center">
+                <div className="text-3xl text-blue-500 animate-pulse">📶</div>
+                <div>
+                  <h3 className="text-base font-black text-white">Підключення до Wi-Fi</h3>
+                  <p className="text-[10px] text-slate-400 mt-0.5">Відскануйте дані для швидкого доступу</p>
+                </div>
+                <div className="space-y-2.5 text-xs bg-slate-950/60 p-4 rounded-2xl border border-slate-800 text-left">
+                  <p className="text-slate-400 font-medium">Мережа (SSID): <span className="text-white font-bold ml-1">{chipData.wifi_ssid || 'Не вказано'}</span></p>
+                  <p className="text-slate-400 font-medium">Пароль: <span className="text-green-400 font-mono font-bold bg-slate-900 px-2 py-0.5 rounded border border-slate-800 ml-1">{chipData.wifi_password || 'Без пароля'}</span></p>
+                </div>
+                <p className="text-[9px] text-slate-500 leading-normal px-2">
+                  💡 На Android пристроях копіюйте пароль для миттєвого підключення. На iOS скористайтеся стандартною камерою для зчитування QR-кодів, якщо роутер підтримує швидку генерацію.
+                </p>
+              </div>
+            )}
+
+          </div>
+        )}
+
       </div>
     </div>
   );
